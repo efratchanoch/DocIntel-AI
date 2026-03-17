@@ -1,6 +1,22 @@
-langchain>=0.3.0
-langchain-openai>=0.2.0
-python-dotenv>=1.0.0
-chromadb>=0.5.0
-pypdf>=5.0.0
-streamlit>=1.40.0
+# --- Core Frameworks ---
+langchain>=1.2.0
+langchain-community
+langchain-core
+
+# --- AI & Vector DB ---
+langchain-groq
+langchain-huggingface
+langchain-chroma
+sentence-transformers
+chromadb
+
+# --- Document Handling ---
+pypdf
+
+# --- UI & Environment ---
+streamlit
+python-dotenv
+
+# --- Networking & Security ---
+requests
+pip_system_certs
