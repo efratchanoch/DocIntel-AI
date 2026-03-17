@@ -4,8 +4,8 @@ import os
 # Load environment variables from .env file
 load_dotenv()
 
-# Access the 'OPENAI_API_KEY'
-API_KEY = os.getenv("OPENAI_API_KEY")
+# Access the 'API_KEY'
+API_KEY = os.getenv("API_KEY")
 
 if API_KEY is None:
     raise ValueError("API Key not found in .env file!")

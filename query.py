@@ -2,43 +2,56 @@ import os
 import ssl
 from config import API_KEY
 
-# פתרון לסינון רימון/נטפרי
+# SSL filtering workaround
 os.environ['CURL_CA_BUNDLE'] = ''
 os.environ['PYTHONHTTPSVERIFY'] = '0'
 ssl._create_default_https_context = ssl._create_unverified_context
 
-# ייבוא מהספרייה של Groq
-from langchain_groq import ChatGroq   # pyright: ignore[reportMissingImports]
+# Imports
+from langchain_groq import ChatGroq  # pyright: ignore[reportMissingImports]
 from langchain_huggingface import HuggingFaceEmbeddings  # pyright: ignore[reportMissingImports]
 from langchain_chroma import Chroma  # pyright: ignore[reportMissingImports]
 
-print("--- Step 1: Loading Vector Store ---")
+# Load the vector store
+print("Loading vector store...")
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 vectorstore = Chroma(persist_directory="vector_db", embedding_function=embeddings)
 
-print("--- Step 2: Initializing Groq LLM ---")
-# כאן אנחנו משתמשים ב-ChatGroq במקום ChatOpenAI
+# Initialize the Groq chat model
 llm = ChatGroq(
-    temperature=0, 
-    groq_api_key=API_KEY, 
-    model_name="llama-3.3-70b-versatile"
+    model_name="llama-3.3-70b-versatile",
+    groq_api_key=API_KEY,
+    temperature=0.0,
 )
 
+# Retrieval step
 question = "What is the main goal of the linear regression model described in the document?"
 print(f"\nQuestion: {question}")
+print("Searching for relevant context...")
 
-print("--- Step 3: Searching PDF Context ---")
+# Retrieve the 3 most relevant chunks
 docs = vectorstore.similarity_search(question, k=3)
 context = "\n---\n".join([doc.page_content for doc in docs])
 
-prompt = f"Answer the question based ONLY on the following context:\n{context}\n\nQuestion: {question}"
+# Augment + generate
+prompt = f"""
+Answer the question below based ONLY on the provided context.
+If the information is not in the context, say you don't know.
 
-print("--- Step 4: Generating Answer via Groq ---")
+Context:
+{context}
+
+Question: 
+{question}
+
+Answer:"""
+
+print("Generating answer via Groq...")
 try:
     response = llm.invoke(prompt)
-    print("\n" + "="*20)
-    print("AI RESPONSE (Groq):")
-    print(response.content)
-    print("="*20)
+    print("\n" + "=" * 60)
+    print("FINAL ANSWER:")
+    print(response.content.strip())
+    print("=" * 60)
 except Exception as e:
-    print(f"\nAn error occurred: {e}")
+    print(f"\nAn error occurred while generating the answer: {e}")
