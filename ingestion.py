@@ -2,12 +2,11 @@ import os
 import ssl
 from config import API_KEY
 
-# פתרון לסינון רימון/נטפרי
+
 os.environ['CURL_CA_BUNDLE'] = ''
 os.environ['PYTHONHTTPSVERIFY'] = '0'
 ssl._create_default_https_context = ssl._create_unverified_context
 
-# ייבוא מהספרייה של Groq
 from langchain_groq import ChatGroq   # pyright: ignore[reportMissingImports]
 from langchain_huggingface import HuggingFaceEmbeddings  # pyright: ignore[reportMissingImports]
 from langchain_chroma import Chroma  # pyright: ignore[reportMissingImports]
@@ -17,7 +16,6 @@ embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 vectorstore = Chroma(persist_directory="vector_db", embedding_function=embeddings)
 
 print("--- Step 2: Initializing Groq LLM ---")
-# כאן אנחנו משתמשים ב-ChatGroq במקום ChatOpenAI
 llm = ChatGroq(
     temperature=0, 
     groq_api_key=API_KEY, 
